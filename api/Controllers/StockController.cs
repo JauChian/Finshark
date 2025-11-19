@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using api.Data;
-using api.Dtos.Stock;
+using api.Dtos.Stock;   
+using api.Interfaces;
 using api.Mappers;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace api.Controllers
 {
@@ -15,25 +13,25 @@ namespace api.Controllers
     [ApiController]
     public class StockController : ControllerBase
     {
-        private readonly ApplicationDBContext _context;
-        public StockController(ApplicationDBContext context)
+        private readonly IStockRepository _stockRepo;
+        public StockController( IStockRepository stockRepo)
         {
-            _context = context;
+            _stockRepo = stockRepo;
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var stocks = _context.Stocks.ToList()
-            .Select(s => s.ToStockDto());
+            var stocks = await _stockRepo.GetAllAsync();
+            var stockDto = stocks.Select(s => s.ToStockDto());
 
-            return Ok(stocks);
+            return Ok(stockDto);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetByID([FromRoute]int id)
+        public async Task<IActionResult> GetByID([FromRoute]int id)
         {
-            var stock = _context.Stocks.Find(id);
+            var stock = await _stockRepo.GetByIdAsync(id);
 
             if (stock == null)
             {
@@ -43,50 +41,38 @@ namespace api.Controllers
             return Ok(stock.ToStockDto());
         }
        [HttpPost]
-       public IActionResult Create([FromBody] CreateStockRequestDto stockDto)
+       public async Task<IActionResult> Create([FromBody] CreateStockRequestDto stockDto)
         {
             var stockModel = stockDto.ToStockFromCreateDTO();
-            _context.Stocks.Add(stockModel);
-            _context.SaveChanges();
+            await _stockRepo.CreateAsync(stockModel);
             
             return CreatedAtAction(nameof(GetByID), new { id = stockModel.Id }, stockModel.ToStockDto());
         }
 
         [HttpPut]
         [Route("{id}")]
-        public  IActionResult Update([FromRoute] int id, [FromBody] UpdateStockRequestDto updateDto)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateStockRequestDto updateDto)
         {
-            var stockModel = _context.Stocks.FirstOrDefault(x=> x.Id ==id);
+            var stockModel = await _stockRepo.UpdateAsync(id,updateDto);
+
             if(stockModel == null)
             {
                 return NotFound();
             }
-
-            stockModel.Symbol = updateDto.Symbol;
-            stockModel.CompanyName = updateDto.CompanyName;
-            stockModel.Purchase = updateDto.Purchase;
-            stockModel.LastDiv = updateDto.LastDiv;
-            stockModel.Industry = updateDto.Industry;
-            stockModel.MarketCap = updateDto.MarketCap;
-
-            _context.SaveChanges();
 
             return Ok(stockModel.ToStockDto());
         }
 
         [HttpDelete]
         [Route("{id}")]
-        public  IActionResult Delete([FromRoute]int id)
+        public async Task<IActionResult> Delete([FromRoute]int id)
         {
-            var stockModel = _context.Stocks.FirstOrDefault(x=> x.Id ==id);
+            var stockModel = await _stockRepo.DeleteAsync(id);
+
             if(stockModel == null)
             {
                 return NotFound();
             }
-
-            _context.Stocks.Remove(stockModel);
-
-            _context.SaveChanges();
 
             return NoContent();
         }
