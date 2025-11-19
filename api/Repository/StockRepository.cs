@@ -19,7 +19,7 @@ namespace api.Repository
         }
         public async Task<List<Stock>> GetAllAsync()
         {
-            return await _context.Stocks.ToListAsync();
+            return await _context.Stocks.Include(c => c.Comments).ToListAsync();
         }
 
         public async Task<Stock?> GetByIdAsync(int id)
@@ -71,6 +71,11 @@ namespace api.Repository
             _context.Stocks.Remove(stockModel);
             await _context.SaveChangesAsync();
             return stockModel;
+        }
+
+        public Task<bool> StockExists(int id)
+        {
+            return _context.Stocks.AnyAsync(s=>s.Id ==id);
         }
     }
 }
