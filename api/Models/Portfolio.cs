@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace api.Models
 {
     [Table("Portfolios")]
+    // Portfolio join model
     public class Portfolio
     {
         public string AppUserId { get; set; } 

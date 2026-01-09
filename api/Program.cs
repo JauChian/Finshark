@@ -1,6 +1,4 @@
-// 中文註解：檔案: api/Program.cs
-// 說明: ASP.NET Core 應用程式的啟動與服務註冊檔案，負責設定 DI、資料庫、控制器與 Swagger。
-// 重點: 註冊 `ApplicationDBContext`、注入 repository，並設定 JSON 序列化以避免循環參照。
+// Startup configuration: DI, middleware, and routing
 using api.Data;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
@@ -16,14 +14,15 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 
+// MVC controllers
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
 builder.Services.AddEndpointsApiExplorer();
+// Swagger/OpenAPI
 builder.Services.AddSwaggerGen();
 
+// Swagger metadata and JWT auth scheme
 builder.Services.AddSwaggerGen(option =>
 {
     option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
@@ -51,23 +50,20 @@ builder.Services.AddSwaggerGen(option =>
         }
     });
 });
-// Enable Newtonsoft.Json and prevent reference loop errors.
-// This is required because our Stock and Comment models have navigation properties
-// that reference each other (Stock -> Comments -> Stock). 
-// Without this setting, JSON serialization would cause a circular reference error
-// and Swagger would fail to load.
-// This configuration tells Newtonsoft.Json to ignore loops during serialization.
+// Use Newtonsoft.Json to avoid reference loop issues
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
 {
     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
 });
 
 
+// Database connection
 builder.Services.AddDbContext<ApplicationDBContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+// Identity password rules
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
@@ -85,6 +81,7 @@ builder.Services.AddAuthentication(options =>
     options.DefaultScheme =
     options.DefaultSignInScheme =
     options.DefaultSignOutScheme = JwtBearerDefaults.AuthenticationScheme;
+// JWT validation parameters
 }).AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
@@ -100,6 +97,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// DI: repositories and services
 builder.Services.AddScoped<IStockRepository, StockRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
@@ -107,7 +105,7 @@ builder.Services.AddScoped<IPortfolioRepository, PortfolioRepository>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// HTTP pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

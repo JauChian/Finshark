@@ -6,18 +6,18 @@ using api.Models;
 
 namespace api.Interfaces
 {
-    // 評論資料存取介面
+    // Comment repository contract
     public interface ICommentRepository
     {
-        // 取得所有評論
+        // Get all comments
         Task<List<Comment>> GetAllAsync();
-        // 依 ID 取得評論
+        // Get a comment by id
         Task<Comment?> GetByIdAsync(int id);
-        // 建立評論
+        // Create a comment
         Task<Comment> CreateAsync(Comment commentModel);
-        // 更新評論
+        // Update a comment
         Task<Comment?> UpdateAsync(int id, Comment commentModel);
-        // 刪除評論
+        // Delete a comment
         Task<Comment?> DeleteAsync(int id);
     }
 }

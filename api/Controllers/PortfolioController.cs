@@ -13,11 +13,13 @@ namespace api.Controllers
 {
     [Route("api/portfolio")]
     [ApiController]
+    // Portfolio API endpoints
     public class PortfolioController : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly IStockRepository _stockRepo;
         private readonly IPortfolioRepository _portfolioRepo;
+        // DI constructor
         public PortfolioController(UserManager<AppUser> userManager,
         IStockRepository stockRepo, IPortfolioRepository portfolioRepo)
         {
@@ -29,6 +31,7 @@ namespace api.Controllers
 
         [HttpGet]
         [Authorize]
+        // Get current user's portfolio
         public async Task<IActionResult> GetUserPortfolio()
         {
             var username = User.GetUsername();
@@ -39,6 +42,7 @@ namespace api.Controllers
 
         [HttpPost]
         [Authorize]
+        // Add a stock to the portfolio
         public async Task<IActionResult> AddPortfolio(string symbol)
         {
             var username = User.GetUsername();
@@ -75,6 +79,7 @@ namespace api.Controllers
         }
         [HttpDelete]
         [Authorize]
+        // Remove a stock from the portfolio
         public async Task<IActionResult> DeletePortfolio(string symbol)
         {
             var username = User.GetUsername();

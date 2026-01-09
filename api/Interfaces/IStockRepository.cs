@@ -8,22 +8,22 @@ using api.Models;
 
 namespace api.Interfaces
 {
-    // 股票資料存取介面
+    // Stock repository contract
     public interface IStockRepository
     {
-        // 取得股票清單（可帶查詢條件）
+        // Get stocks with query options
         Task<List<Stock>> GetAllAsync(QueryObject query);
-        // 依 ID 取得股票
+        // Get a stock by id
         Task<Stock?> GetByIdAsync(int id);
-        // 依代號取得股票
+        // Get a stock by symbol
         Task<Stock?> GetBySymbolAsync(string symbol);
-        // 建立股票
+        // Create a stock
         Task<Stock> CreateAsync(Stock stockModel);
-        // 更新股票
+        // Update a stock
         Task<Stock?> UpdateAsync(int id, UpdateStockRequestDto stockDto);
-        // 刪除股票
+        // Delete a stock
         Task<Stock?> DeleteAsync(int id);
-        // 檢查股票是否存在
+        // Check stock existence
         Task<bool> StockExists(int id);
     }
 }

@@ -5,20 +5,20 @@ using System.Threading.Tasks;
 
 namespace api.Helpers
 {
-    // 查詢與分頁用的參數物件
+    // Query parameters for filtering, sorting, and paging
     public class QueryObject
     {
-        // 依股票代號過濾
+        // Stock symbol filter
         public string? Symbol { get; set; } = null;
-        // 依公司名稱過濾
+        // Company name filter
         public string? CompanyName { get; set; } = null;
-        // 排序欄位名稱
+        // Sort field
         public string? SortBy { get; set; } = null;
-        // 是否為遞減排序
+        // Descending sort flag
         public bool IsDecsending { get; set; } = false;
-        // 目前頁碼
+        // Page number (1-based)
         public int PageNumber { get; set; } = 1;
-        // 每頁筆數
+        // Page size
         public int PageSize { get; set; } = 20;
     }
 }

@@ -11,31 +11,34 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers
 {
-    // 股票相關 API 的 Controller
     [Route("api/stock")]
     [ApiController]
+    // Stock API endpoints
     public class StockController : ControllerBase
     {
         private readonly IStockRepository _stockRepo;
-        // 透過 DI 注入 Repository
+        // DI constructor
         public StockController(IStockRepository stockRepo)
         {
             _stockRepo = stockRepo;
         }
 
-        // 取得股票清單（可帶查詢參數）
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetAll([FromQuery] QueryObject query) // Filtering 
+        // Get stocks with query and pagination
+        public async Task<IActionResult> GetAll([FromQuery] QueryObject query) // Filtering and pagination 
         {
+            if(!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var stocks = await _stockRepo.GetAllAsync(query);
-            var stockDto = stocks.Select(s => s.ToStockDto());
+            var stockDto = stocks.Select(s => s.ToStockDto()).ToList();
 
             return Ok(stockDto);
         }
 
-        // 依 ID 取得單一股票
         [HttpGet("{id:int}")]
+        // Get a stock by id
         public async Task<IActionResult> GetByID([FromRoute] int id)
         {
             var stock = await _stockRepo.GetByIdAsync(id);
@@ -47,8 +50,8 @@ namespace api.Controllers
 
             return Ok(stock.ToStockDto());
         }
-        // 建立股票
         [HttpPost]
+        // Create a stock
         public async Task<IActionResult> Create([FromBody] CreateStockRequestDto stockDto)
         {
             if (!ModelState.IsValid)
@@ -60,9 +63,9 @@ namespace api.Controllers
             return CreatedAtAction(nameof(GetByID), new { id = stockModel.Id }, stockModel.ToStockDto());
         }
 
-        // 更新股票資料
         [HttpPut]
         [Route("{id:int}")]
+        // Update a stock
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateStockRequestDto updateDto)
         {
             if (!ModelState.IsValid)
@@ -78,9 +81,9 @@ namespace api.Controllers
             return Ok(stockModel.ToStockDto());
         }
 
-        // 刪除股票
         [HttpDelete]
         [Route("{id:int}")]
+        // Delete a stock
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             var stockModel = await _stockRepo.DeleteAsync(id);

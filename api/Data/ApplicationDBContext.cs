@@ -9,22 +9,24 @@ using Microsoft.EntityFrameworkCore;
 
 namespace api.Data
 {
-    // 應用程式的資料庫上下文
+    // App DbContext with Identity and domain entities
     public class ApplicationDBContext : IdentityDbContext<AppUser>
     {
-        // 由 DI 注入 DbContext 設定
+        // DI constructor
         public ApplicationDBContext(DbContextOptions dbContextOptions) : base(dbContextOptions)
         {
 
         }
 
-        // 股票資料表
+        // Stocks table
         public DbSet<Stock> Stocks { get; set; }
-        // 評論資料表
+        // Comments table
         public DbSet<Comment> Comments { get; set; }
 
+        // Portfolio join table
         public DbSet<Portfolio> Portfolios { get; set; }
 
+        // Configure relationships and seed roles
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -41,6 +43,7 @@ namespace api.Data
                 .WithMany(u => u.Portfolios)
                 .HasForeignKey(p => p.StockId);
 
+            // Seed default roles
             List<IdentityRole> roles = new List<IdentityRole>
         {
             new IdentityRole

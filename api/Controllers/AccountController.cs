@@ -13,11 +13,13 @@ namespace api.Controllers
 {
     [Route("api/account")]
     [ApiController]
+    // Account registration and login endpoints
     public class AccountController : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly ITokenService _tokenService;
         private readonly SignInManager<AppUser> _signInManager;
+        // DI constructor
         public AccountController(UserManager<AppUser> userManager, ITokenService tokenService, SignInManager<AppUser> signInManager  )
         {
             _userManager = userManager;
@@ -26,6 +28,7 @@ namespace api.Controllers
         }
 
         [HttpPost("login")]
+        // Sign in with username/password and return JWT
         public async Task<IActionResult> Login(LoginDto loginDto)
         {
             if(!ModelState.IsValid)
@@ -48,6 +51,7 @@ namespace api.Controllers
         }
 
         [HttpPost("register")]
+        // Register a new user and assign default role
         public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
         {
             try

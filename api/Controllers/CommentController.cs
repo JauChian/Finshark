@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Dtos.Comment;
+using api.Extensions;
 using api.Interfaces;
 using api.Mappers;
 using api.Models;
@@ -12,22 +13,24 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers
 {
-    // 評論相關 API 的 Controller
     [Route("api/comment")]
     [ApiController]
+    // Comment API endpoints
     public class CommentController : ControllerBase
     {
         private readonly ICommentRepository _commentRepo;
         private readonly IStockRepository _stockRepository;
-        // 透過 DI 注入 Repository
-        public CommentController(ICommentRepository commentRepo, IStockRepository stockRepository)
+        private readonly UserManager<AppUser> _userManager;
+        // DI constructor
+        public CommentController(ICommentRepository commentRepo, IStockRepository stockRepository, UserManager<AppUser> userManager)
         {
             _commentRepo = commentRepo;
             _stockRepository = stockRepository;
+            _userManager = userManager;
         }
 
-        // 取得所有評論
         [HttpGet]
+        // Get all comments
         public async Task<IActionResult> GetAll()
         {
             var comments = await _commentRepo.GetAllAsync();
@@ -36,8 +39,8 @@ namespace api.Controllers
             return Ok(commentDto);
         }
 
-        // 依 ID 取得單一評論
-        [HttpGet("{id:int}")] //這會檢查id是否為int
+        [HttpGet("{id:int}")] // ensures id is an int
+        // Get a comment by id
         public async Task<IActionResult> GetByID([FromRoute] int id)
         {
             var comment = await _commentRepo.GetByIdAsync(id);
@@ -49,8 +52,8 @@ namespace api.Controllers
 
             return Ok(comment.ToCommentDto());
         }
-        // 建立評論，需傳入股票 ID
         [HttpPost("{stockId:int}")]
+        // Create a comment for a stock
         public async Task<IActionResult> Create([FromRoute] int stockId, CreateCommentRequestDto commentDto)
         {
             if (!ModelState.IsValid)
@@ -61,15 +64,19 @@ namespace api.Controllers
                 return BadRequest("Stock does not exist");
             }
 
+            var username = User.GetUsername();
+            var appUser = await _userManager.FindByNameAsync(username);
+
             var commentModel = commentDto.ToCommentFromCreate(stockId);
+            commentModel.AppUserId = appUser.Id;
             await _commentRepo.CreateAsync(commentModel);
 
             return CreatedAtAction(nameof(GetByID), new { id = commentModel.Id }, commentModel.ToCommentDto());
         }
 
-        // 更新評論內容
         [HttpPut]
         [Route("{id:int}")]
+        // Update a comment
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateCommentRequestDto updateDto)
         {
             if (!ModelState.IsValid)
@@ -85,9 +92,9 @@ namespace api.Controllers
             return Ok(comment.ToCommentDto());
         }
 
-        // 刪除評論
         [HttpDelete]
         [Route("{id:int}")]
+        // Delete a comment
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             var commentModel = await _commentRepo.DeleteAsync(id);

@@ -11,15 +11,18 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace api.Service
 {
+    // JWT token service
     public class TokenService: ITokenService
     {
         private readonly IConfiguration _cinfig;
         private readonly SymmetricSecurityKey _key;
+        // Initialize signing key from configuration
         public TokenService(IConfiguration cinfig)
         {
             _cinfig = cinfig;
             _key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_cinfig["JWT:SigningKey"]));
         }
+        // Build and sign JWT token
         public string CreateToken(AppUser user)
         {
             var claims = new List<Claim>

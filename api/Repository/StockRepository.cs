@@ -1,6 +1,3 @@
-// 中文註解：檔案: api/Repository/StockRepository.cs
-// 說明: 實作 `IStockRepository` 的資料存取類別，負責對 `Stock` 實體進行 CRUD 與查詢操作。
-// 重點: 使用 Entity Framework Core 存取 `ApplicationDBContext`，並支援分頁、排序與篩選。
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,16 +12,19 @@ using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace api.Repository
 {
+    // Stock repository implementation
     public class StockRepository : IStockRepository
     {
         private readonly ApplicationDBContext _context;
+        // DI constructor
         public StockRepository(ApplicationDBContext context)
         {
             _context = context;
         }
+        // Query stocks with filters
         public async Task<List<Stock>> GetAllAsync(QueryObject query)
         {
-            var stocks = _context.Stocks.Include(c => c.Comments).AsQueryable();
+            var stocks = _context.Stocks.Include(c => c.Comments).ThenInclude(a=> a.AppUser).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(query.CompanyName))
             {
@@ -50,16 +50,22 @@ namespace api.Repository
             return await stocks.Skip(skipNumber).Take(query.PageSize).ToListAsync();
         }
 
+        // Get a stock by id including comments
         public async Task<Stock?> GetByIdAsync(int id)
         {
-            return await _context.Stocks.Include(c => c.Comments).FirstOrDefaultAsync(i => i.Id == id);
+            return await _context.Stocks
+                .Include(c => c.Comments)
+                .ThenInclude(a => a.AppUser)
+                .FirstOrDefaultAsync(i => i.Id == id);
         }
 
+        // Get a stock by symbol
         public Task<Stock?> GetBySymbolAsync(string symbol)
         {
             return _context.Stocks.FirstOrDefaultAsync(s => s.Symbol == symbol);
         }
 
+        // Create a stock
         public async Task<Stock> CreateAsync(Stock stockModel)
         {
             await _context.Stocks.AddAsync(stockModel);
@@ -67,6 +73,7 @@ namespace api.Repository
             return stockModel;
         }
 
+        // Update a stock
         public async Task<Stock?> UpdateAsync(int id, UpdateStockRequestDto stockDto)
         {
             var existingStock = await _context.Stocks.FirstOrDefaultAsync(x => x.Id == id);
@@ -87,6 +94,7 @@ namespace api.Repository
             return existingStock;
         }
 
+        // Delete a stock
         public async Task<Stock?> DeleteAsync(int id)
         {
             var stockModel = await _context.Stocks.FirstOrDefaultAsync(x => x.Id == id);
@@ -101,6 +109,7 @@ namespace api.Repository
             return stockModel;
         }
 
+        // Check stock existence
         public Task<bool> StockExists(int id)
         {
             return _context.Stocks.AnyAsync(s => s.Id == id);

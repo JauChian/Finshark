@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace api.Dtos.Account
 {
+    // Auth response DTO
     public class NewUserDto
     {
         public string UserName { get; set; } 

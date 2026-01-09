@@ -6,6 +6,7 @@ using System.Linq;
 
 namespace api.Dtos.Account
 {
+    // Register request DTO
     public class RegisterDto
     {
         [Required]

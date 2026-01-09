@@ -8,10 +8,10 @@ using api.Models;
 
 namespace api.Mappers
 {
-    // Comment ? Comment ?? DTO ???
+    // Comment model to DTO mapping
     public static class CommentMappers
     {
-        // Model -> DTO
+        // Map Comment to CommentDto
         public static CommentDto ToCommentDto(this Comment commentModel)
         {
             return new CommentDto
@@ -20,11 +20,12 @@ namespace api.Mappers
                 Title = commentModel.Title,
                 Content = commentModel.Content,
                 CreatedOn = commentModel.CreatedOn,
+                CreatedBy = commentModel.AppUser?.UserName ?? string.Empty,
                 StockId = commentModel.StockId
             };
         }
 
-        // ???? DTO -> Model
+        // Map create request to Comment
         public static Comment ToCommentFromCreate(this CreateCommentRequestDto commentDto, int stockId)
         {
             return new Comment
@@ -35,7 +36,7 @@ namespace api.Mappers
             };
         }
 
-        // ???? DTO -> Model
+        // Map update request to Comment
         public static Comment ToCommentFromUpdate(this UpdateCommentRequestDto commentDto)
         {
             return new Comment
