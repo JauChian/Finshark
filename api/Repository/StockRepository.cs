@@ -1,3 +1,6 @@
+// 中文註解：檔案: api/Repository/StockRepository.cs
+// 說明: 實作 `IStockRepository` 的資料存取類別，負責對 `Stock` 實體進行 CRUD 與查詢操作。
+// 重點: 使用 Entity Framework Core 存取 `ApplicationDBContext`，並支援分頁、排序與篩選。
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +24,7 @@ namespace api.Repository
         }
         public async Task<List<Stock>> GetAllAsync(QueryObject query)
         {
-            var stocks =  _context.Stocks.Include(c => c.Comments).AsQueryable();
+            var stocks = _context.Stocks.Include(c => c.Comments).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(query.CompanyName))
             {
@@ -54,7 +57,7 @@ namespace api.Repository
 
         public Task<Stock?> GetBySymbolAsync(string symbol)
         {
-            throw new NotImplementedException();
+            return _context.Stocks.FirstOrDefaultAsync(s => s.Symbol == symbol);
         }
 
         public async Task<Stock> CreateAsync(Stock stockModel)
@@ -66,8 +69,8 @@ namespace api.Repository
 
         public async Task<Stock?> UpdateAsync(int id, UpdateStockRequestDto stockDto)
         {
-            var existingStock = await _context.Stocks.FirstOrDefaultAsync(x=> x.Id ==id);
-            if(existingStock == null)
+            var existingStock = await _context.Stocks.FirstOrDefaultAsync(x => x.Id == id);
+            if (existingStock == null)
             {
                 return null;
             }
@@ -86,9 +89,9 @@ namespace api.Repository
 
         public async Task<Stock?> DeleteAsync(int id)
         {
-            var stockModel = await _context.Stocks.FirstOrDefaultAsync(x=> x.Id ==id);
-            
-            if(stockModel == null)
+            var stockModel = await _context.Stocks.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (stockModel == null)
             {
                 return null;
             }
@@ -100,7 +103,7 @@ namespace api.Repository
 
         public Task<bool> StockExists(int id)
         {
-            return _context.Stocks.AnyAsync(s=>s.Id ==id);
+            return _context.Stocks.AnyAsync(s => s.Id == id);
         }
     }
 }

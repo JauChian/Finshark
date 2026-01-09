@@ -1,3 +1,6 @@
+// 中文註解：檔案: api/Repository/CommentRepository.cs
+// 說明: 實作 `ICommentRepository` 的資料存取類別，負責 `Comment` 實體的 CRUD 操作。
+// 重點: 使用 Entity Framework Core 操作 `ApplicationDBContext`，並處理新增、刪除、更新與查詢。
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,7 +58,7 @@ namespace api.Repository
         {
             var exitingComment = await _context.Comments.FindAsync(id);
 
-            if (exitingComment== null)
+            if (exitingComment == null)
             {
                 return null;
             }

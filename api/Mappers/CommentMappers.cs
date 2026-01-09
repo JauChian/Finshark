@@ -8,8 +8,10 @@ using api.Models;
 
 namespace api.Mappers
 {
+    // Comment ? Comment ?? DTO ???
     public static class CommentMappers
     {
+        // Model -> DTO
         public static CommentDto ToCommentDto(this Comment commentModel)
         {
             return new CommentDto
@@ -22,6 +24,7 @@ namespace api.Mappers
             };
         }
 
+        // ???? DTO -> Model
         public static Comment ToCommentFromCreate(this CreateCommentRequestDto commentDto, int stockId)
         {
             return new Comment
@@ -32,6 +35,7 @@ namespace api.Mappers
             };
         }
 
+        // ???? DTO -> Model
         public static Comment ToCommentFromUpdate(this UpdateCommentRequestDto commentDto)
         {
             return new Comment
